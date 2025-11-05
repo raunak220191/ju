@@ -1,0 +1,42 @@
+# Java Migration Project - Minimal .gitignore
+# We want to commit most files for this migration project
+
+# IDE files (optional - uncomment if you don't want to share IDE settings)
+# .idea/
+# .vscode/
+# *.iml
+# *.ipr
+# *.iws
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary build artifacts (only exclude if you want clean commits)
+# target/
+# *.class
+
+# Log files
+*.log
+
+# Package Files (uncomment if you don't want JARs in repo)
+# *.jar
+# *.war
+# *.ear
+
+# Maven wrapper (we'll keep it for consistency)
+# !.mvn/wrapper/maven-wrapper.jar
+
+# Backup files
+*~
+*.swp
+*.swo
+
+# Local environment files
+.env.local
+.env.*.local
