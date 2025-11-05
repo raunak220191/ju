@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/hello"
+           xmlns:tns="http://example.com/hello"
+           elementFormDefault="qualified">
+
+    <!-- Request element -->
+    <xs:element name="sayHelloRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="city" type="xs:string"/>
+                <xs:element name="datetime" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- Complex type for Address -->
+    <xs:complexType name="Address">
+        <xs:sequence>
+            <xs:element name="street" type="xs:string" minOccurs="0"/>
+            <xs:element name="city" type="xs:string" minOccurs="0"/>
+            <xs:element name="state" type="xs:string" minOccurs="0"/>
+            <xs:element name="country" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Response element -->
+    <xs:element name="sayHelloResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="greeting" type="xs:string"/>
+                <xs:element name="address" type="tns:Address" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

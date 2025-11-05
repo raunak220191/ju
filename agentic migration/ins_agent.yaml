@@ -1,0 +1,110 @@
+name: Java SOAP to Java 21 Microservice Migration
+version: "1.0"
+description: |
+  Guidance for an agent to migrate a Java 15 Spring-WS SOAP service (WSDL/XSD-driven)
+  to a Java 21 Spring Boot 3.x microservice. Supports two tracks: (A) modernized SOAP
+  on Spring-WS, (B) optional REST facade while preserving SOAP contract.
+
+# Preferred agent runtime
+agent:
+  model: "claude sonet 4.5 agentic copilot in vs code"
+  behaviors:
+    - be deterministic and idempotent
+    - propose a plan before changes; then execute in small, reversible batches
+    - keep diffs minimal; preserve public contracts unless asked to change
+    - generate missing tests and docs
+
+prerequisites:
+  java: "21"
+  maven: 
+    min: "3.9.0"
+  build: "mvn -q -DskipTests clean verify"
+  run: "mvn -q spring-boot:run"
+
+inputs:
+  expected_artifacts:
+    - src/main/resources/wsdl/*.xsd
+    - src/main/resources/wsdl/*.wsdl
+    - src/main/java/**/config/**/*.java
+    - src/main/java/**/endpoint/**/*.java
+  notes:
+    - JAXB classes may be generated into src/main/java based on XSD.
+
+outputs:
+  - a compilable Java 21 Spring Boot 3.x project
+  - regenerated JAXB POJOs from XSD
+  - passing unit/integration tests
+  - runnable service exposing: SOAP at /ws (and optional REST at /api)
+  - docs: README, MIGRATION_GUIDE, QUICKSTART, TESTING
+
+constraints:
+  - keep WSDL/XSD contract stable for SOAP path
+  - migrate javax.* to jakarta.*
+  - avoid breaking package names unless strictly needed
+  - prefer Spring Boot 3.3+ or later
+
+libraries:
+  spring:
+    - spring-boot-starter-web-services
+    - spring-boot-starter-actuator
+  jaxb:
+    - jakarta.xml.bind: 4.x
+    - org.glassfish.jaxb: jaxb-runtime 4.x
+  optional:
+    - springdoc-openapi-starter-webmvc-ui for REST docs
+
+pom_updates:
+  parent:
+    groupId: org.springframework.boot
+    artifactId: spring-boot-starter-parent
+    version: ">=3.3.0"
+  properties:
+    java.version: "21"
+  dependencies_adjustments:
+    - replace javax.* artifacts with jakarta.*
+    - add spring-boot-starter-web-services
+  plugins:
+    jaxb40-maven-plugin:
+      version: ">=0.16.0"
+      configuration:
+        schemaDirectory: src/main/resources/wsdl
+        schemaIncludes:
+          - "**/*.xsd"
+        generateDirectory: src/main/java
+        packageNameOverride: optional
+
+execution:
+  plan:
+    - Analyze workspace and inventory artifacts (XSD/WSDL, endpoints, config, tests).
+    - Upgrade Maven parent and set Java 21; refactor javax.* -> jakarta.* imports.
+    - Configure and run JAXB codegen; ensure generated types compile.
+    - Keep SOAP track: Spring-WS config at /ws, DefaultWsdl11Definition bound to hello.xsd.
+    - Optional REST facade: @RestController exposing /api/hello mapping to same service layer.
+    - Extract business logic into a service class used by both SOAP (Endpoint) and REST.
+    - Add tests: unit (JUnit 5), SOAP integration (spring-ws-test), optional REST (MockMvc).
+    - Wire observability (Actuator), health/liveness/readiness.
+    - Provide Dockerfile (eclipse-temurin:21-jre), and compose if needed.
+    - Validate end-to-end and document.
+
+checks:
+  compile: mvn -q -DskipTests clean verify
+  tests: mvn -q test
+  run-smoke:
+    - GET http://localhost:8080/actuator/health -> UP
+    - WSDL reachable (e.g., http://localhost:8080/ws/hello.wsdl)
+    - SOAP sayHello request/response round-trip passes
+
+acceptance_criteria:
+  - Java 21 build succeeds with no javax.* left
+  - SOAP contract stable; JAXB classes aligned with XSD
+  - Endpoint available under /ws; optional REST under /api
+  - Tests pass; docs updated; docker image builds
+
+rollback_strategy:
+  - commit in small batches; keep original sources intact in migrated-code/
+  - feature branch + PR with clear diffs
+
+notes:
+  - Prefer constructor injection; avoid field injection
+  - Keep bean names stable (e.g., wsdl definition bean name)
+  - Set MessageDispatcherServlet transformWsdlLocations=true
