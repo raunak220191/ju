@@ -1,9 +1,9 @@
-name: Java SOAP to Java 21 Microservice Migration
+name: Java SOAP to Java 21 Microservice Migration(Spring-WS)
 version: "1.0"
 description: |
   Guidance for an agent to migrate a Java 15 Spring-WS SOAP service (WSDL/XSD-driven)
-  to a Java 21 Spring Boot 3.x microservice. Supports two tracks: (A) modernized SOAP
-  on Spring-WS, (B) optional REST facade while preserving SOAP contract.
+  to a Java 21 Spring Boot 3.x RestController based microservice. Supports two tracks: (A) Move from  SOAP to REST Based Webserive
+  on Spring-WS, (B) Mandatory RestController facade while deprecating SOAP contract, (C) Microservice based architecture, (D) Cloud Compliant.
 
 # Preferred agent runtime
 agent:
@@ -24,6 +24,7 @@ prerequisites:
 inputs:
   expected_artifacts:
     - src/main/resources/wsdl/*.xsd
+    - src/main/java/com/example/hello_ws/endpoint/HelloWorldEndpointRestController*.java
     - src/main/resources/wsdl/*.wsdl
     - src/main/java/**/config/**/*.java
     - src/main/java/**/endpoint/**/*.java
@@ -32,16 +33,17 @@ inputs:
 
 outputs:
   - a compilable Java 21 Spring Boot 3.x project
+  - This has to be micro service based, cloud compliant(Non negotiable)
   - regenerated JAXB POJOs from XSD
   - passing unit/integration tests
-  - runnable service exposing: SOAP at /ws (and optional REST at /api)
+  - runnable service exposing: REstController at /ws
   - docs: README, MIGRATION_GUIDE, QUICKSTART, TESTING
 
 constraints:
-  - keep WSDL/XSD contract stable for SOAP path
+  - keep WSDL/XSD contract stable from SOAP to RestController
   - migrate javax.* to jakarta.*
   - avoid breaking package names unless strictly needed
-  - prefer Spring Boot 3.3+ or later
+  - prefer Spring Boot 3.0+ or later
 
 libraries:
   spring:
@@ -76,10 +78,11 @@ pom_updates:
 execution:
   plan:
     - Analyze workspace and inventory artifacts (XSD/WSDL, endpoints, config, tests).
+    - Workspace right now contains files without any directory architecture.
     - Upgrade Maven parent and set Java 21; refactor javax.* -> jakarta.* imports.
     - Configure and run JAXB codegen; ensure generated types compile.
-    - Keep SOAP track: Spring-WS config at /ws, DefaultWsdl11Definition bound to hello.xsd.
-    - Optional REST facade: @RestController exposing /api/hello mapping to same service layer.
+    - Generate Microservice architecture, cloud compliant application structure.
+    - Mandatory REST facade: @RestController exposing /api/hello mapping to same service layer.
     - Extract business logic into a service class used by both SOAP (Endpoint) and REST.
     - Add tests: unit (JUnit 5), SOAP integration (spring-ws-test), optional REST (MockMvc).
     - Wire observability (Actuator), health/liveness/readiness.
@@ -92,11 +95,9 @@ checks:
   run-smoke:
     - GET http://localhost:8080/actuator/health -> UP
     - WSDL reachable (e.g., http://localhost:8080/ws/hello.wsdl)
-    - SOAP sayHello request/response round-trip passes
-
+    
 acceptance_criteria:
   - Java 21 build succeeds with no javax.* left
-  - SOAP contract stable; JAXB classes aligned with XSD
   - Endpoint available under /ws; optional REST under /api
   - Tests pass; docs updated; docker image builds
 

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-starter-parent</artifactId>
+       <version>3.5.7</version>
+       <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>hello-ws-complex-type</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>hello-ws-complex-type</name>
+    <description>SOAP Hello World Service with Input Parameter</description>
+
+    <url/>
+    <licenses>
+       <license/>
+    </licenses>
+    <developers>
+       <developer/>
+    </developers>
+    <scm>
+       <connection/>
+       <developerConnection/>
+       <tag/>
+       <url/>
+    </scm>
+    <properties>
+       <java.version>21</java.version>
+    </properties>
+    <dependencies>
+       <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web-services</artifactId>
+       </dependency>
+
+       <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-test</artifactId>
+          <scope>test</scope>
+       </dependency>
+
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>wsdl4j</groupId>
+            <artifactId>wsdl4j</artifactId>
+            <version>1.6.3</version>
+        </dependency>
+
+        <!-- Spring Boot starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>maven.jvnet</id>
+            <name>maven.jvnet repository</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+
+        <repository>
+            <id>jvnet-nexus</id>
+            <url>https://download.java.net/maven/2/</url>
+        </repository>
+    </repositories>
+
+    <build>
+       <plugins>
+          <plugin>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-maven-plugin</artifactId>
+          </plugin>
+
+            <!-- JAXB2 Plugin -->
+            <plugin>
+                <groupId>com.helger.maven</groupId>
+                <artifactId>jaxb40-maven-plugin</artifactId>
+                <version>0.16.0</version> <!-- or 0.16.1 if you prefer -->
+                <executions>
+                    <execution>
+                        <id>generate</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaDirectory>${project.basedir}/src/main/resources/wsdl</schemaDirectory>
+                            <generateDirectory>${project.basedir}/src/main/java</generateDirectory>
+                            <removeOldOutput>false</removeOldOutput>
+                            <args>
+                                <arg>-extension</arg>
+                                <arg>-nv</arg>
+                            </args>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+ 
